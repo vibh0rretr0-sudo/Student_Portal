@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Portal{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Inline critical CSS to prevent flash */
+        body { background: var(--surface); }
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="particle-field">
+        <div class="particle" style="width: 3px; height: 3px; top: 12%; left: 8%; --p-dur: 22s; --p-delay: 0s; --p-x: -30px; --p-y: 50px; --p-op: 0.4; --p-ex: 10px; --p-ey: -10px;"></div>
+        <div class="particle" style="width: 2px; height: 2px; top: 45%; left: 92%; --p-dur: 26s; --p-delay: -3s; --p-x: 20px; --p-y: -40px; --p-op: 0.35; --p-ex: -15px; --p-ey: 15px;"></div>
+        <div class="particle" style="width: 4px; height: 4px; top: 78%; left: 15%; --p-dur: 20s; --p-delay: -6s; --p-x: 25px; --p-y: -30px; --p-op: 0.5; --p-ex: 20px; --p-ey: 5px;"></div>
+        <div class="particle" style="width: 2px; height: 2px; top: 20%; left: 55%; --p-dur: 30s; --p-delay: -2s; --p-x: -50px; --p-y: 30px; --p-op: 0.3; --p-ex: -5px; --p-ey: -15px;"></div>
+        <div class="particle" style="width: 3px; height: 3px; top: 60%; left: 75%; --p-dur: 24s; --p-delay: -8s; --p-x: 35px; --p-y: -25px; --p-op: 0.45; --p-ex: -20px; --p-ey: 10px;"></div>
+        <div class="particle" style="width: 2px; height: 2px; top: 35%; left: 30%; --p-dur: 28s; --p-delay: -4s; --p-x: -20px; --p-y: 45px; --p-op: 0.35; --p-ex: 5px; --p-ey: -5px;"></div>
+        <div class="particle" style="width: 3px; height: 3px; top: 85%; left: 50%; --p-dur: 19s; --p-delay: -10s; --p-x: 40px; --p-y: -55px; --p-op: 0.4; --p-ex: -10px; --p-ey: 20px;"></div>
+        <div class="particle" style="width: 2px; height: 2px; top: 5%; left: 65%; --p-dur: 32s; --p-delay: -1s; --p-x: -25px; --p-y: 20px; --p-op: 0.3; --p-ex: 15px; --p-ey: -5px;"></div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <div class="sidebar-title">
+                    Portal
+                    <small>Student Management</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                {% if session.role == 'student' %}
+                <span class="nav-section-label">Overview</span>
+                <a class="nav-item {% if request.path == '/student/dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1"/>
+                        <rect width="7" height="5" x="14" y="3" rx="1"/>
+                        <rect width="7" height="9" x="14" y="12" rx="1"/>
+                        <rect width="7" height="5" x="3" y="16" rx="1"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <a class="nav-item {% if request.path == '/student/courses' %}active{% endif %}" href="{{ url_for('student_courses') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                    My Courses
+                </a>
+                <a class="nav-item {% if request.path == '/student/profile' %}active{% endif %}" href="{{ url_for('student_profile') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="5"/>
+                        <path d="M20 21a8 8 0 0 0-16 0"/>
+                    </svg>
+                    My Profile
+                </a>
+                {% elif session.role == 'professor' %}
+                <span class="nav-section-label">Overview</span>
+                <a class="nav-item {% if request.path == '/professor/dashboard' %}active{% endif %}" href="{{ url_for('professor_dashboard') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1"/>
+                        <rect width="7" height="5" x="14" y="3" rx="1"/>
+                        <rect width="7" height="9" x="14" y="12" rx="1"/>
+                        <rect width="7" height="5" x="3" y="16" rx="1"/>
+                    </svg>
+                    Dashboard
+                </a>
+                <span class="nav-section-label" style="margin-top: 12px;">Courses</span>
+                <a class="nav-item {% if request.path == '/professor/courses' %}active{% endif %}" href="{{ url_for('professor_courses') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                    My Courses
+                </a>
+                <a class="nav-item {% if request.path == '/professor/students' %}active{% endif %}" href="{{ url_for('professor_students') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    All Students
+                </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                {% if session.user_id %}
+                <div class="sidebar-user">
+                    <div class="sidebar-avatar">{{ session.full_name[0:2]|upper }}</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-user-name">{{ session.full_name }}</div>
+                        <div class="sidebar-user-role">{{ 'Professor' if session.role == 'professor' else 'Student' }}</div>
+                    </div>
+                </div>
+                <a class="sidebar-btn-logout" href="{{ url_for('logout') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" x2="9" y1="12" y2="12"/>
+                    </svg>
+                    Sign out
+                </a>
+                {% else %}
+                <div style="padding: 20px 12px; text-align: center; color: var(--indigo-400); font-size: 13px;">
+                    Please sign in to access the portal
+                </div>
+                <a class="sidebar-btn-logout" style="color: var(--indigo-300);" href="{{ url_for('login') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" x2="9" y1="12" y2="12"/>
+                    </svg>
+                    Log in to portal
+                </a>
+            {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Toggle sidebar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" x2="20" y1="12" y2="12"/>
+                            <line x1="4" x2="20" y1="6" y2="6"/>
+                            <line x1="4" x2="20" y1="18" y2="18"/>
+                        </svg>
+                    </button>
+                    <div class="topbar-breadcrumb">
+                        {% block breadcrumb %}{% endblock %}
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    {% block topbar_actions %}{% endblock %}
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="toast {{ category }}" style="position: relative; margin-bottom: 12px; animation: slideInRight 0.3s ease;">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}All Students — Student Portal{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('professor_dashboard') }}">Dashboard</a>
+<span class="separator">/</span>
+<span class="current">All Students</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">All Students</h1>
+    <p class="page-subtitle">Browse the full student directory. {{ students|length }} student{{ 's' if students|length != 1 else '' }} enrolled across all courses.</p>
+</div>
+
+<div class="content-card">
+    <div class="content-card-header">
+        <div class="content-card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Student Directory
+        </div>
+    </div>
+    <div class="content-card-body" style="padding: 0;">
+        {% if students %}
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Major</th>
+                        <th>Semester</th>
+                        <th>Enrollment Date</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in students %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="student-list-avatar">{{ s.full_name[0:2]|upper }}</div>
+                                <div>
+                                    <div style="font-weight: 600; color: var(--text-primary);">{{ s.full_name }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="font-family: var(--font-mono); font-size: 13px; color: var(--indigo-500);">{{ s.student_id }}</td>
+                        <td style="color: var(--text-secondary);">{{ s.major or '—' }}</td>
+                        <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary);">Semester {{ s.current_semester }}</td>
+                        <td style="color: var(--text-muted); font-size: 13px;">{{ formatDate(s.enrollment_date) if s.enrollment_date else '—' }}</td>
+                        <td style="color: var(--indigo-500); font-size: 13px;">{{ s.email or '—' }}</td>
+                        <td>
+                            <a class="btn btn-secondary btn-xs" href="{{ url_for('professor_student_detail', student_id=s.student_id) }}">
+                                View
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M5 12h14"/>
+                                    <path d="m12 5 7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding: 40px 16px;">
+            <div class="empty-state-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <div class="empty-state-title">No students found</div>
+            <div class="empty-state-desc">There are no students in the system yet.</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

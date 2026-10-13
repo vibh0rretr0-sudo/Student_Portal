@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.full_name }} — Student Portal{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('professor_dashboard') }}">Dashboard</a>
+<span class="separator">/</span>
+<a href="{{ url_for('professor_students') }}">All Students</a>
+<span class="separator">/</span>
+<span class="current">{{ student.student_id }}</span>
+{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+    <div class="detail-main">
+        <!-- Student Header -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">{{ student.full_name[0:2]|upper }}</div>
+                <div class="profile-info">
+                    <div class="profile-name">{{ student.full_name }}</div>
+                    <div class="profile-meta">
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                            </svg>
+                            Student
+                        </span>
+                        <span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                            {{ student.student_id }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-body">
+                <div class="profile-field">
+                    <span class="profile-field-label">Full Name</span>
+                    <span class="profile-field-value">{{ student.full_name }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Student ID</span>
+                    <span class="profile-field-value" style="font-family: var(--font-mono);">{{ student.student_id }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Email</span>
+                    <span class="profile-field-value" style="color: var(--indigo-500);">{{ student.email or '—' }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Major</span>
+                    <span class="profile-field-value">{{ student.major or '—' }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Current Semester</span>
+                    <span class="profile-field-value">Semester {{ student.current_semester }}</span>
+                </div>
+                <div class="profile-field">
+                    <span class="profile-field-label">Enrollment Date</span>
+                    <span class="profile-field-value">{{ formatDate(student.enrollment_date) if student.enrollment_date else '—' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrollment History -->
+        <div class="content-card" style="margin-top: 20px;">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                    Course History
+                </div>
+            </div>
+            <div class="content-card-body" style="padding: 0;">
+                {% if student.enrollments %}
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Course</th>
+                                <th>Professor</th>
+                                <th>Schedule</th>
+                                <th>Credits</th>
+                                <th>Grade</th>
+                                <th>Attendance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in student.enrollments %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600; color: var(--text-primary);">{{ e.code }}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">{{ e.name[:50] }}{% if e.name|length > 50 %}...{% endif %}</div>
+                                </td>
+                                <td style="color: var(--text-secondary); font-size: 13px;">{{ e.professor_name or '—' }}</td>
+                                <td style="color: var(--text-muted); font-size: 13px;">{{ e.schedule or 'TBA' }}</td>
+                                <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary);">{{ e.credits }}</td>
+                                <td>
+                                    {% if e.grade %}
+                                    <span class="grade-badge {{ e.grade }}">{{ e.grade }}</span>
+                                    {% else %}
+                                    <span style="color: var(--text-muted); font-size: 13px;">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if e.attendance %}
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <span style="font-size: 13px; font-family: var(--font-mono); font-weight: 600; color: {% if e.attendance >= 80 %}var(--success){% elif e.attendance >= 60 %}var(--warning){% else %}var(--error){% endif %};">{{ '%.0f'|format(e.attendance) }}%</span>
+                                        <span class="course-attendance-bar" style="width: 50px;">
+                                            <span class="course-attendance-bar-fill" style="width: {{ e.attendance }}%"></span>
+                                        </span>
+                                    </div>
+                                    {% else %}
+                                    <span style="color: var(--text-muted); font-size: 13px;">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 32px 16px;">
+                    <div class="empty-state-title">No course history</div>
+                    <div class="empty-state-desc">This student hasn't enrolled in any courses yet.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="detail-sidebar">
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1"/>
+                        <rect width="7" height="5" x="14" y="3" rx="1"/>
+                        <rect width="7" height="9" x="14" y="12" rx="1"/>
+                        <rect width="7" height="5" x="3" y="16" rx="1"/>
+                    </svg>
+                    Quick Stats
+                </div>
+            </div>
+            <div class="content-card-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Total Courses</span>
+                    <span style="font-weight: 700; font-size: 15px;">{{ student.enrollments|length }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Completed</span>
+                    <span style="font-weight: 700; font-size: 15px; color: var(--success);">{{ student.enrollments|selectattr('grade', 'defined')|list|length }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding-bottom: 10px; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">In Progress</span>
+                    <span style="font-weight: 700; font-size: 15px; color: var(--text-muted);">{{ student.enrollments|rejectattr('grade', 'defined')|list|length }}</span>
+                </div>
+                {% if student.enrollments %}
+                {% set attended = student.enrollments|selectattr('attendance', 'defined')|list %}
+                {% if attended|length > 0 %}
+                {% set avg_att = attended|map(attribute='attendance')|average %}
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Avg Attendance</span>
+                    <span style="font-weight: 700; font-size: 15px; color: {% if avg_att >= 80 %}var(--success){% elif avg_att >= 60 %}var(--warning){% else %}var(--error){% endif %};">{{ '%.0f'|format(avg_att) }}%</span>
+                </div>
+                {% endif %}
+                {% set graded = student.enrollments|selectattr('grade', 'defined')|list %}
+                {% if graded|length > 0 %}
+                {% set grades_list = graded|map(attribute='grade')|list %}
+                {% set gpa_val = grades_list|map('get_grade_points')|average %}
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">GPA</span>
+                    <span style="font-weight: 700; font-size: 15px; color: var(--indigo-500); font-family: var(--font-mono);">{{ '%.2f'|format(gpa_val) }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    Contact
+                </div>
+            </div>
+            <div class="content-card-body" style="display: flex; flex-direction: column; gap: 10px;">
+                {% if student.email %}
+                <a href="mailto:{{ student.email }}" style="display: flex; align-items: center; gap: 8px; color: var(--indigo-500); text-decoration: none; font-size: 13px; font-weight: 500; padding: 8px 12px; background: var(--surface-sunken); border-radius: var(--radius-sm); transition: background var(--transition-fast);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="16" x="2" y="4" rx="2"/>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                    </svg>
+                    {{ student.email }}
+                </a>
+                {% else %}
+                <div style="font-size: 13px; color: var(--text-muted); padding: 8px 12px; background: var(--surface-sunken); border-radius: var(--radius-sm);">
+                    No email on file
+                </div>
+                {% endif %}
+                <div style="font-size: 13px; color: var(--text-muted); padding: 8px 12px; background: var(--surface-sunken); border-radius: var(--radius-sm);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ student.major or 'Major not specified' }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Custom filter for grade points (registered in app if needed, otherwise computed here)
+// This is a client-side helper for display only
+</script>
+{% endblock %}

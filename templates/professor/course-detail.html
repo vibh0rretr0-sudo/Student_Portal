@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.code }} — {{ course.name }} — Student Portal{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('professor_dashboard') }}">Dashboard</a>
+<span class="separator">/</span>
+<a href="{{ url_for('professor_courses') }}">My Courses</a>
+<span class="separator">/</span>
+<span class="current">{{ course.code }}</span>
+{% endblock %}
+
+{% block topbar_actions %}
+<a class="btn btn-secondary btn-sm" href="{{ url_for('professor_edit_course', course_id=course.id) }}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+        <path d="m15 5 4 4"/>
+    </svg>
+    Edit Course
+</a>
+<button class="btn btn-danger btn-sm" onclick="confirmDelete()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 6h18"/>
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+    </svg>
+    Delete
+</button>
+{% endblock %}
+
+{% block content %}
+<div class="detail-layout">
+    <div class="detail-main">
+        <!-- Course Header -->
+        <div class="course-detail-header">
+            <span class="course-detail-code">{{ course.code }}</span>
+            <h1 class="course-detail-name">{{ course.name }}</h1>
+            <div class="course-detail-professor">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                {{ course.professor_name }}
+                <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 4px;">({{ course.professor_id }})</span>
+            </div>
+            <p class="course-detail-desc">{{ course.description }}</p>
+            <div class="course-detail-meta-grid">
+                <div class="course-detail-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                        <line x1="16" x2="16" y1="2" y2="6"/>
+                        <line x1="8" x2="8" y1="2" y2="6"/>
+                        <line x1="3" x2="21" y1="10" y2="10"/>
+                    </svg>
+                    {{ course.schedule or 'Schedule TBA' }}
+                </div>
+                <div class="course-detail-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ course.room or 'Room TBA' }}
+                </div>
+                <div class="course-detail-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 14l9-5-9-5-9 5 9 5z"/>
+                        <path d="M12 14l9 5-9 5-9-5 9-5z"/>
+                        <path d="M12 14l-9-5 9-5 9 5-9 5z"/>
+                    </svg>
+                    {{ course.credits }} credit{{ 's' if course.credits != 1 else '' }}
+                </div>
+                <div class="course-detail-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                        <line x1="16" x2="16" y1="2" y2="6"/>
+                        <line x1="8" x2="8" y1="2" y2="6"/>
+                        <line x1="3" x2="21" y1="10" y2="10"/>
+                    </svg>
+                    {{ course.semester }}
+                </div>
+                <div class="course-detail-meta-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    {{ enrollments|length }} enrolled
+                </div>
+            </div>
+        </div>
+
+        <!-- Enrolled Students -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    Enrolled Students
+                    <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 4px;">({{ enrollments|length }})</span>
+                </div>
+                {% if enrollments %}
+                <!-- Enroll student form inline -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <form method="POST" action="{{ url_for('professor_enroll_student', course_id=course.id) }}" style="display: flex; gap: 6px; align-items: center;">
+                        <select name="student_id" class="form-select" style="width: auto; min-width: 160px; padding: 7px 32px 7px 10px; font-size: 13px;">
+                            <option value="">Add student...</option>
+                            {% for s in all_students %}
+                            {% if s.student_id not in enrolled_ids %}
+                            <option value="{{ s.student_id }}">{{ s.full_name }} ({{ s.student_id }})</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <line x1="19" x2="19" y1="8" y2="14"/>
+                                <line x1="16" x2="22" y1="11" y2="11"/>
+                            </svg>
+                            Enroll
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Grade overview summary -->
+        <div class="content-card" style="margin-top: 16px;">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    Grade Summary
+            <div class="content-card-body">
+                {% if enrollments %}
+                <div class="enrollment-students-grid">
+                    {% for e in enrollments %}
+                    <div class="enrollment-student-row">
+                        <div class="student-list-avatar" style="background: var(--indigo-100); color: var(--indigo-600); width: 32px; height: 32px; font-size: 12px;">{{ e.full_name[0:2]|upper }}</div>
+                        <div class="enrollment-info">
+                            <div class="enrollment-name">{{ e.full_name }}</div>
+                            <div class="enrollment-student-id">{{ e.student_id }} &middot; {{ e.major or 'Major TBA' }} &middot; Sem {{ e.current_semester }}</div>
+                        </div>
+                        <div class="enrollment-stats">
+                            <div class="enrollment-stat">
+                                <div class="enrollment-stat-value grade-{{ e.grade | replace('+', '')|replace('-', '') if e.grade else 'IP' }}">
+                                    {% if e.grade %}{{ e.grade }}{% else %}—{% endif %}
+                                </div>
+                                <div class="enrollment-stat-label">Grade</div>
+                            </div>
+                            <div class="enrollment-stat">
+                                <div class="enrollment-stat-value" style="color: {% if e.attendance and e.attendance >= 80 %}var(--success){% elif e.attendance and e.attendance >= 60 %}var(--warning){% else %}var(--error){% endif %};">
+                                    {% if e.attendance %}{{ '%.0f'|format(e.attendance) }}%{% else %}—{% endif %}
+                                </div>
+                                <div class="enrollment-stat-label">Attend.</div>
+                            </div>
+                        </div>
+                        <div class="enrollment-actions">
+                            {% if e.grade == 'IP' or not e.grade %}
+                            <form method="POST" action="{{ url_for('professor_set_grade', enrollment_id=e.id) }}" style="display: inline;" onsubmit="handleGradeSubmit(this, {{ e.id }})">
+                                <input type="hidden" name="enrollment_id" value="{{ e.id }}">
+                                <select class="grade-input" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
+                                    <option value="">Set</option>
+                                    <option value="A+" {% if e.grade == 'A+' %}selected{% endif %}>A+</option>
+                                    <option value="A" {% if e.grade == 'A' %}selected{% endif %}>A</option>
+                                    <option value="A-" {% if e.grade == 'A-' %}selected{% endif %}>A-</option>
+                                    <option value="B+" {% if e.grade == 'B+' %}selected{% endif %}>B+</option>
+                                    <option value="B" {% if e.grade == 'B' %}selected{% endif %}>B</option>
+                                    <option value="B-" {% if e.grade == 'B-' %}selected{% endif %}>B-</option>
+                                    <option value="C+" {% if e.grade == 'C+' %}selected{% endif %}>C+</option>
+                                    <option value="C" {% if e.grade == 'C' %}selected{% endif %}>C</option>
+                                    <option value="C-" {% if e.grade == 'C-' %}selected{% endif %}>C-</option>
+                                    <option value="D+" {% if e.grade == 'D+' %}selected{% endif %}>D+</option>
+                                    <option value="D" {% if e.grade == 'D' %}selected{% endif %}>D</option>
+                                    <option value="F" {% if e.grade == 'F' %}selected{% endif %}>F</option>
+                                </select>
+                                <input type="hidden" name="grade" id="grade-{{ e.id }}" value="">
+                            </form>
+                            {% else %}
+                            <span class="grade-badge {{ e.grade }}" style="font-size: 13px; padding: 4px 10px;">{{ e.grade }}</span>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('professor_remove_enrollment', enrollment_id=e.id) }}" style="display: inline;" onsubmit="return confirm('Remove {{ e.full_name }} from this course?');">
+                                <button type="submit" class="btn btn-secondary btn-xs btn-icon" title="Remove enrollment" style="padding: 4px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 32px 16px;">
+                    <div class="empty-state-title">No students enrolled</div>
+                    <div class="empty-state-desc">This course has no students yet. Use the form above to enroll students.</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Announcements -->
+        {% if announcements %}
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                        <path d="M10.3 23a1.94 1.94 0 0 0 3.4 0"/>
+                    </svg>
+                    Announcements
+                    <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 4px;">({{ announcements|length }})</span>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="openAnnouncementModal({{ course.id }})">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5v14"/>
+                    </svg>
+                    New Announcement
+                </button>
+            </div>
+            <div class="content-card-body">
+                <div class="announcement-item" style="margin-bottom: 10px; padding: 14px 16px; background: var(--surface-sunken); border-radius: var(--radius-md); border-left: 3px solid var(--amber-500);">
+                    <div style="flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+                        {% for a in announcements %}
+                        <div style="margin-bottom: 8px;">
+                            <div style="font-weight: 600; color: var(--text-primary); font-size: 14px; margin-bottom: 2px;">{{ a.title }}</div>
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">
+                                {{ a.professor_name }} &middot; {{ formatDate(a.created_at) if a.created_at }}
+                            </div>
+                            <div style="color: var(--text-secondary);">{{ a.content }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Course Materials -->
+        {% if materials %}
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Course Materials
+                </div>
+            </div>
+            <div class="content-card-body">
+                <div class="materials-list">
+                    {% for m in materials %}
+                    <div class="material-item" style="cursor: default;">
+                        <div class="material-icon {{ m.type }}">
+                            {% if m.type == 'pdf' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" x2="8" y1="13" y2="13"/>
+                                <line x1="16" x2="8" y1="17" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                            {% elif m.type == 'zip' %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m7 17 5-5 5 5"/>
+                                <path d="m7 7 5 5 5-5"/>
+                                <path d="M7 12h10"/>
+                            </svg>
+                            {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <div class="material-info">
+                            <div class="material-title">{{ m.title }}</div>
+                            <div class="material-type">{{ m.type | upper }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="detail-sidebar">
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="7" height="9" x="3" y="3" rx="1"/>
+                        <rect width="7" height="5" x="14" y="3" rx="1"/>
+                        <rect width="7" height="9" x="14" y="12" rx="1"/>
+                        <rect width="7" height="5" x="3" y="16" rx="1"/>
+                    </svg>
+                    Course Details
+                </div>
+            </div>
+            <div class="content-card-body" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Code</span>
+                    <span style="font-weight: 600; font-family: var(--font-mono); color: var(--indigo-500);">{{ course.code }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Credits</span>
+                    <span style="font-weight: 600;">{{ course.credits }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Semester</span>
+                    <span style="font-weight: 600;">{{ course.semester }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Professor</span>
+                    <span style="font-weight: 600;">{{ course.professor_name or '—' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Schedule</span>
+                    <span style="font-weight: 500;">{{ course.schedule or 'TBA' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Room</span>
+                    <span style="font-weight: 500;">{{ course.room or 'TBA' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Enrolled</span>
+                    <span style="font-weight: 600;">{{ enrollments|length }} student{{ 's' if enrollments|length != 1 else '' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grade quick stats -->
+        {% if enrollments %}
+        <div class="content-card">
+            <div class="content-card-header">
+                <div class="content-card-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3v18"/>
+                        <path d="M3 12h18"/>
+                    </svg>
+                    Grade Overview
+                </div>
+            </div>
+            <div class="content-card-body" style="display: flex; flex-direction: column; gap: 10px;">
+                {% set graded_count = 0 %}
+                {% set ip_count = 0 %}
+                {% set att_vals = [] %}
+                {% for e in enrollments %}
+                    {% if e.grade and e.grade != 'IP' %}{% set graded_count = graded_count + 1 %}{% endif %}
+                    {% if e.grade == 'IP' %}{% set ip_count = ip_count + 1 %}{% endif %}
+                    {% if e.attendance is defined and e.attendance %}{% set att_vals = att_vals + [e.attendance] %}{% endif %}
+                {% endfor %}
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Graded</span>
+                    <span style="font-weight: 600; color: var(--success);">{{ graded_count }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">In Progress</span>
+                    <span style="font-weight: 600; color: var(--text-muted);">{{ ip_count }}</span>
+                </div>
+                {% if att_vals|length > 0 %}
+                {% set avg_attendance = att_vals|average %}
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                    <span style="color: var(--text-muted);">Avg Attendance</span>
+                    <span style="font-weight: 600; color: {% if avg_attendance >= 80 %}var(--success){% elif avg_attendance >= 60 %}var(--warning){% else %}var(--error){% endif %};">{{ '%.0f'|format(avg_attendance) }}%</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Delete Course</div>
+            <button class="modal-close" onclick="closeDeleteModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" x2="6" y1="6" y2="18"/>
+                    <line x1="6" x2="18" y1="6" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.5;">
+                Are you sure you want to delete <strong>{{ course.code }} — {{ course.name }}</strong>?
+                This will also remove all enrollments and announcements associated with this course.
+                This action cannot be undone.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+            <form method="POST" action="{{ url_for('professor_delete_course', course_id=course.id) }}">
+                <button type="submit" class="btn btn-danger">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                    </svg>
+                    Delete Course
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Announcement Modal -->
+<div id="announcement-modal" class="modal-overlay" style="display: none;">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">New Announcement</div>
+            <button class="modal-close" onclick="closeAnnouncementModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" x2="6" y1="6" y2="18"/>
+                    <line x1="6" x2="18" y1="6" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="announcement-form" id="announcement-form" method="POST" action="{{ url_for('professor_add_announcement', course_id=course.id) }}">
+                <div class="form-group">
+                    <label class="form-label" for="ann-title">Title</label>
+                    <input type="text" class="form-input" id="ann-title" name="title" placeholder="Announcement title" required style="font-size: 14px;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="ann-content">Content</label>
+                    <textarea class="form-textarea" id="ann-content" name="content" placeholder="Write your announcement..." required style="font-size: 14px; min-height: 100px;"></textarea>
+                </div>
+                <div class="form-actions" style="justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeAnnouncementModal()">Cancel</button>
+                    <button type="submit" class="btn btn-amber">Post Announcement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDelete() {
+    document.getElementById('delete-modal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('delete-modal').style.display = 'none';
+}
+
+function openAnnouncementModal(courseId) {
+    document.getElementById('announcement-modal').style.display = 'flex';
+    document.getElementById('ann-title').focus();
+}
+
+function closeAnnouncementModal() {
+    document.getElementById('announcement-modal').style.display = 'none';
+    document.getElementById('ann-title').value = '';
+    document.getElementById('ann-content').value = '';
+}
+
+// Close modals on overlay click
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
+document.getElementById('announcement-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAnnouncementModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeAnnouncementModal();
+    }
+});
+
+// Grade select handler
+function handleGradeSubmit(form, enrollmentId) {
+    var select = form.querySelector('select');
+    if (!select.value) {
+        select.value = '';
+        return false;
+    }
+    return true;
+}
+
+// Click outside modal to close
+window.addEventListener('load', function() {
+    document.body.style.overflow = '';
+});
+</script>
+{% endblock %}

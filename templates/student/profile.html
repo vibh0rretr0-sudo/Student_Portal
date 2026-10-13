@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile — Student Portal{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+<span class="separator">/</span>
+<span class="current">My Profile</span>
+{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">View and manage your personal information.</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Personal Info -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">{{ session.full_name[0:2]|upper }}</div>
+            <div class="profile-info">
+                <div class="profile-name">{{ session.full_name }}</div>
+                <div class="profile-meta">
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                        </svg>
+                        {{ session.role | capitalize }}
+                    </span>
+                    <span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        {{ session.username }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="profile-body">
+            <div class="profile-field">
+                <span class="profile-field-label">Full Name</span>
+                <span class="profile-field-value">{{ session.full_name }}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-field-label">Student ID</span>
+                <span class="profile-field-value" style="font-family: var(--font-mono);">{{ student.student_id }}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-field-label">Email</span>
+                <span class="profile-field-value" style="color: var(--indigo-500);">{{ student.email or '—' }}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-field-label">Major</span>
+                <span class="profile-field-value">{{ student.major or '—' }}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-field-label">Current Semester</span>
+                <span class="profile-field-value">Semester {{ student.current_semester }}</span>
+            </div>
+            <div class="profile-field">
+                <span class="profile-field-label">Enrollment Date</span>
+                <span class="profile-field-value">{{ formatDate(student.enrollment_date) if student.enrollment_date else '—' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrollment History -->
+    <div class="profile-card">
+        <div style="padding: 20px 28px; border-bottom: 1px solid var(--border); background: var(--surface-sunken);">
+            <div style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+                Enrollment History
+            </div>
+        </div>
+        <div style="padding: 8px 0;">
+            {% if full.enrollments %}
+            <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Course</th>
+                            <th>Professor</th>
+                            <th>Schedule</th>
+                            <th>Credits</th>
+                            <th>Grade</th>
+                            <th>Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in full.enrollments %}
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600; color: var(--text-primary);">{{ e.code }}</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">{{ e.name[:40] }}{% if e.name|length > 40 %}...{% endif %}</div>
+                            </td>
+                            <td>
+                                <span style="color: var(--text-secondary); font-size: 13px;">{{ e.professor_name }}</span>
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 13px;">{{ e.schedule or 'TBA' }}</td>
+                            <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary);">
+                                {{ e.credits }}
+                            </td>
+                            <td>
+                                {% if e.grade %}
+                                <span class="grade-badge {{ e.grade }}">{{ e.grade }}</span>
+                                {% else %}
+                                <span style="color: var(--text-muted); font-size: 13px;">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if e.attendance %}
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 13px; font-family: var(--font-mono); font-weight: 600;">{{ '%.0f'|format(e.attendance) }}%</span>
+                                    <span class="course-attendance-bar" style="width: 50px;">
+                                        <span class="course-attendance-bar-fill" style="width: {{ e.attendance }}%"></span>
+                                    </span>
+                                </div>
+                                {% else %}
+                                <span style="color: var(--text-muted); font-size: 13px;">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state" style="padding: 32px 16px;">
+                <div class="empty-state-title">No enrollments yet</div>
+                <div class="empty-state-desc">You haven't enrolled in any courses yet.</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
