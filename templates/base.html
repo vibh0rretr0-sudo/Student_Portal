@@ -45,14 +45,14 @@
                     </svg>
                 </div>
                 <div class="sidebar-title">
-                    Portal
-                    <small>Student Management</small>
+                    <span class="nav-text">Portal</span>
+                    <small class="nav-text">Student Management</small>
                 </div>
             </div>
 
             <nav class="sidebar-nav">
                 {% if session.role == 'student' %}
-                <span class="nav-section-label">Overview</span>
+                <span class="nav-section-label nav-text">Overview</span>
                 <a class="nav-item {% if request.path == '/student/dashboard' %}active{% endif %}" href="{{ url_for('student_dashboard') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="7" height="9" x="3" y="3" rx="1"/>
@@ -60,24 +60,24 @@
                         <rect width="7" height="9" x="14" y="12" rx="1"/>
                         <rect width="7" height="5" x="3" y="16" rx="1"/>
                     </svg>
-                    Dashboard
+                    <span class="nav-text">Dashboard</span>
                 </a>
                 <a class="nav-item {% if request.path == '/student/courses' %}active{% endif %}" href="{{ url_for('student_courses') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                     </svg>
-                    My Courses
+                    <span class="nav-text">My Courses</span>
                 </a>
                 <a class="nav-item {% if request.path == '/student/profile' %}active{% endif %}" href="{{ url_for('student_profile') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="8" r="5"/>
                         <path d="M20 21a8 8 0 0 0-16 0"/>
                     </svg>
-                    My Profile
+                    <span class="nav-text">My Profile</span>
                 </a>
                 {% elif session.role == 'professor' %}
-                <span class="nav-section-label">Overview</span>
+                <span class="nav-section-label nav-text">Overview</span>
                 <a class="nav-item {% if request.path == '/professor/dashboard' %}active{% endif %}" href="{{ url_for('professor_dashboard') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect width="7" height="9" x="3" y="3" rx="1"/>
@@ -85,15 +85,15 @@
                         <rect width="7" height="9" x="14" y="12" rx="1"/>
                         <rect width="7" height="5" x="3" y="16" rx="1"/>
                     </svg>
-                    Dashboard
+                    <span class="nav-text">Dashboard</span>
                 </a>
-                <span class="nav-section-label" style="margin-top: 12px;">Courses</span>
+                <span class="nav-section-label nav-text" style="margin-top: 12px;">Courses</span>
                 <a class="nav-item {% if request.path == '/professor/courses' %}active{% endif %}" href="{{ url_for('professor_courses') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
                         <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                     </svg>
-                    My Courses
+                    <span class="nav-text">My Courses</span>
                 </a>
                 <a class="nav-item {% if request.path == '/professor/students' %}active{% endif %}" href="{{ url_for('professor_students') }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -102,7 +102,7 @@
                         <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                         <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
-                    All Students
+                    <span class="nav-text">All Students</span>
                 </a>
                 {% endif %}
             </nav>
@@ -122,10 +122,10 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" x2="9" y1="12" y2="12"/>
                     </svg>
-                    Sign out
+                    <span class="nav-text">Sign out</span>
                 </a>
                 {% else %}
-                <div style="padding: 20px 12px; text-align: center; color: var(--indigo-400); font-size: 13px;">
+                <div style="padding: 20px 12px; text-align: center; color: var(--indigo-400); font-size: 13px;" class="nav-text">
                     Please sign in to access the portal
                 </div>
                 <a class="sidebar-btn-logout" style="color: var(--indigo-300);" href="{{ url_for('login') }}">
@@ -134,7 +134,7 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" x2="9" y1="12" y2="12"/>
                     </svg>
-                    Log in to portal
+                    <span class="nav-text">Log in to portal</span>
                 </a>
             {% endif %}
             </div>
@@ -145,7 +145,7 @@
             <!-- Top Bar -->
             <header class="topbar">
                 <div class="topbar-left">
-                    <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar').classList.toggle('collapsed')" aria-label="Toggle sidebar">
+                    <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="4" x2="20" y1="12" y2="12"/>
                             <line x1="4" x2="20" y1="6" y2="6"/>

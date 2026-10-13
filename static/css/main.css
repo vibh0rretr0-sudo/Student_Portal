@@ -122,11 +122,7 @@ body {
     width: 70px;
 }
 
-.sidebar.collapsed .sidebar-title,
-.sidebar.collapsed .nav-section-label,
-.sidebar.collapsed .sidebar-user-info,
-.sidebar.collapsed .sidebar-btn-logout span,
-.sidebar.collapsed .sidebar-btn-logout {
+.sidebar.collapsed .nav-text {
     display: none;
 }
 

@@ -7,6 +7,25 @@
     'use strict';
 
     /* ========================================
+       Sidebar Toggle Logic
+       Handles decoupled behavior for mobile (open) vs desktop (collapsed)
+       ======================================== */
+    window.toggleSidebar = function () {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return;
+
+        const isMobile = window.innerWidth < 900;
+
+        if (isMobile) {
+            // Mobile: only toggle the 'open' class to slide in/out
+            sidebar.classList.toggle('open');
+        } else {
+            // Desktop: toggle 'collapsed' to switch between 260px and 70px
+            sidebar.classList.toggle('collapsed');
+        }
+    };
+
+    /* ========================================
        Particle Dot Field
        Slowly drifting dots with subtle connections
        ======================================== */
