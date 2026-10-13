@@ -17,11 +17,24 @@
         const isMobile = window.innerWidth < 900;
 
         if (isMobile) {
-            // Mobile: only toggle the 'open' class to slide in/out
             sidebar.classList.toggle('open');
         } else {
-            // Desktop: toggle 'collapsed' to switch between 260px and 70px
             sidebar.classList.toggle('collapsed');
+        }
+    };
+
+    window.toggleTheme = function () {
+        const html = document.documentElement;
+        const currentTheme = html.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.innerHTML = newTheme === 'dark'
+                ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 9 9 0 0 1 21 12.79z"></path>' // Moon
+                : '<circle cx="12" cy="12" r="5"/><line x1="12" x2="12" y1="1" y2="3"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="4.22" x2="4.22" y1="4.22" y2="4.22"/><line x1="18.78" x2="18.78" y1="18.78" y2="18.78"/><line x1="4.22" x2="4.22" y1="18.78" y2="18.78"/><line x1="18.78" x2="18.78" y1="4.22" y2="4.22"/>'; // Sun
         }
     };
 
@@ -272,6 +285,18 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Update theme icon
+        const icon = document.getElementById('theme-icon');
+        if (icon) {
+            icon.innerHTML = savedTheme === 'dark'
+                ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 9 9 0 0 1 21 12.79z"></path>'
+                : '<circle cx="12" cy="12" r="5"/><line x1="12" x2="12" y1="1" y2="3"/><line x1="12" x2="12" y1="21" y2="23"/><line x1="4.22" x2="4.22" y1="4.22" y2="4.22"/><line x1="18.78" x2="18.78" y1="18.78" y2="18.78"/><line x1="4.22" x2="4.22" y1="18.78" y2="18.78"/><line x1="18.78" x2="18.78" y1="4.22" y2="4.22"/>';
+        }
+
         observeEntranceAnimations();
     });
 
