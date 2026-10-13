@@ -114,9 +114,56 @@ body {
     left: 0;
     bottom: 0;
     z-index: 100;
-    transition: transform var(--transition-base);
+    transition: transform var(--transition-base), width var(--transition-base);
     overflow-y: auto;
 }
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed .sidebar-title,
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .sidebar-user-info,
+.sidebar.collapsed .sidebar-btn-logout span,
+.sidebar.collapsed .sidebar-btn-logout {
+    display: none;
+}
+
+.sidebar.collapsed .sidebar-brand {
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.sidebar.collapsed .nav-item {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+.sidebar.collapsed .nav-item svg {
+    margin: 0;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.sidebar.collapsed .sidebar-user {
+    justify-content: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.sidebar.collapsed .sidebar-btn-logout {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    width: 100%;
+}
+
 
 .sidebar-brand {
     display: flex;
@@ -318,7 +365,13 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    transition: margin-left var(--transition-base);
 }
+
+.sidebar.collapsed + .main-content {
+    margin-left: 70px;
+}
+
 
 /* --- Top Bar --- */
 .topbar {
@@ -781,14 +834,16 @@ body {
     padding: 22px 24px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border);
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
     animation: cardFadeIn 0.5s var(--transition-slow) both;
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+    border-color: var(--indigo-200);
 }
+
 
 .stat-card:nth-child(1) { animation-delay: 0.05s; }
 .stat-card:nth-child(2) { animation-delay: 0.10s; }
@@ -878,7 +933,15 @@ body {
     border: 1px solid var(--border);
     overflow: hidden;
     animation: cardFadeIn 0.5s var(--transition-slow) both;
+    transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
 }
+
+.content-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--indigo-200);
+}
+
 
 .content-card-header {
     display: flex;
@@ -1120,8 +1183,10 @@ body {
 }
 
 .data-table tr:hover td {
-    background: var(--surface-sunken);
+    background: rgba(59, 77, 138, 0.04);
+    color: var(--indigo-600);
 }
+
 
 .data-table .grade-cell {
     font-family: var(--font-mono);
