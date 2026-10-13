@@ -1,6 +1,13 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, send_from_directory, g, flash
 from datetime import datetime
+
+class Config:
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    DEFAULT_SEMESTER = "Fall 2026"
+    DEFAULT_CREDITS = 3
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "database", "portal.db")
+
 from database import (
     init_db, get_db,
     get_user_by_id,
@@ -20,7 +27,13 @@ from auth import (
 )
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "student-portal-secret-key-change-in-production")
+app.config.from_object(Config)
+
+if not app.config["SECRET_KEY"]:
+    app.secret_key = "dev-fallback-key-replace-in-production"
+else:
+    app.secret_key = app.config["SECRET_KEY"]
+
 app.config["SESSION_TYPE"] = "filesystem"
 
 
@@ -34,6 +47,18 @@ def index():
     elif role == "professor":
         return redirect(url_for("professor_dashboard"))
     return redirect(url_for("login"))
+
+
+@app.before_request
+def before_request():
+    from database import get_db
+    g.db = get_db()
+
+@app.teardown_appcontext
+def teardown_appcontext(exception):
+    db = getattr(g, 'db', None)
+    if db is not None:
+        db.close()
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -99,7 +124,7 @@ def student_courses():
 def student_course_detail(course_id):
     course = get_course_by_id(course_id)
     if not course:
-        return "Course not found", 404
+        return render_template("error.html", message="Course not found", code=404), 404
     announcements = get_course_announcements(course_id)
     materials = get_course_materials(course_id)
     username = session.get("username")
@@ -159,22 +184,34 @@ def professor_create_course():
         code = request.form.get("code", "").strip().upper()
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-        credits = int(request.form.get("credits", 3))
-        semester = request.form.get("semester", "Fall 2026").strip()
+        try:
+            credits = int(request.form.get("credits", app.config["DEFAULT_CREDITS"]))
+            if credits <= 0:
+                raise ValueError("Credits must be positive")
+        except (ValueError, TypeError):
+            flash("Invalid credits. Please enter a positive number.", "error")
+            return render_template("professor/manage-course.html", professor=professor,
+                                   mode="create", username=session.get("username"))
+
+        semester = request.form.get("semester", app.config["DEFAULT_SEMESTER"]).strip()
         schedule = request.form.get("schedule", "").strip()
         room = request.form.get("room", "").strip()
         if not code or not name:
+            flash("Course code and name are required", "error")
             return render_template("professor/manage-course.html", professor=professor,
-                                   mode="create", error="Course code and name are required", username=session.get("username"))
+                                   mode="create", username=session.get("username"))
         existing = get_db().execute("SELECT id FROM courses WHERE code = ?", (code,)).fetchone()
         if existing:
+            flash(f"Course code '{code}' already exists", "error")
             return render_template("professor/manage-course.html", professor=professor,
-                                   mode="create", error=f"Course code '{code}' already exists", username=session.get("username"))
+                                   mode="create", username=session.get("username"))
         course_id = create_course(code, name, description, credits, session["user_id"], semester, schedule, room)
         if course_id:
+            flash("Course created successfully!", "success")
             return redirect(url_for("professor_courses"))
+        flash("Failed to create course", "error")
         return render_template("professor/manage-course.html", professor=professor,
-                               mode="create", error="Failed to create course", username=session.get("username"))
+                               mode="create", username=session.get("username"))
     return render_template("professor/manage-course.html", professor=professor,
                            mode="create", username=session.get("username"))
 
@@ -184,7 +221,7 @@ def professor_create_course():
 def professor_course_detail(course_id):
     course = get_course_by_id(course_id)
     if not course:
-        return "Course not found", 404
+        return render_template("error.html", message="Course not found", code=404), 404
     professor = get_current_professor()
     enrollments = get_course_enrollments(course_id)
     announcements = get_course_announcements(course_id)
@@ -209,19 +246,29 @@ def professor_course_detail(course_id):
 def professor_edit_course(course_id):
     course = get_course_by_id(course_id)
     if not course:
-        return "Course not found", 404
+        return render_template("error.html", message="Course not found", code=404), 404
     professor = get_current_professor()
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-        credits = int(request.form.get("credits", 3))
-        semester = request.form.get("semester", "Fall 2026").strip()
+        try:
+            credits = int(request.form.get("credits", app.config["DEFAULT_CREDITS"]))
+            if credits <= 0:
+                raise ValueError("Credits must be positive")
+        except (ValueError, TypeError):
+            flash("Invalid credits. Please enter a positive number.", "error")
+            return render_template("professor/manage-course.html", professor=professor,
+                                   course=course, mode="edit", username=session.get("username"))
+
+        semester = request.form.get("semester", app.config["DEFAULT_SEMESTER"]).strip()
         schedule = request.form.get("schedule", "").strip()
         room = request.form.get("room", "").strip()
         if not name:
+            flash("Course name is required", "error")
             return render_template("professor/manage-course.html", professor=professor,
-                                   course=course, mode="edit", error="Course name is required", username=session.get("username"))
+                                   course=course, mode="edit", username=session.get("username"))
         update_course(course_id, name, description, credits, semester, schedule, room)
+        flash("Course updated successfully!", "success")
         return redirect(url_for("professor_course_detail", course_id=course_id))
     return render_template("professor/manage-course.html", professor=professor,
                            course=course, mode="edit", username=session.get("username"))
@@ -231,6 +278,7 @@ def professor_edit_course(course_id):
 @professor_required
 def professor_delete_course(course_id):
     delete_course(course_id)
+    flash("Course deleted successfully.", "success")
     return redirect(url_for("professor_courses"))
 
 
@@ -240,7 +288,12 @@ def professor_add_announcement(course_id):
     title = request.form.get("title", "").strip()
     content = request.form.get("content", "").strip()
     if title and content:
-        add_announcement(course_id, session["user_id"], title, content)
+        if add_announcement(course_id, session["user_id"], title, content):
+            flash("Announcement posted successfully!", "success")
+        else:
+            flash("Failed to post announcement.", "error")
+    else:
+        flash("Both title and content are required.", "error")
     return redirect(url_for("professor_course_detail", course_id=course_id))
 
 
@@ -263,7 +316,7 @@ def professor_students():
 def professor_student_detail(student_id):
     student = get_student_full(student_id)
     if not student:
-        return "Student not found", 404
+        return render_template("error.html", message="Student not found", code=404), 404
     professor = get_current_professor()
     username = session.get("username")
     return render_template(
@@ -278,14 +331,30 @@ def professor_student_detail(student_id):
 def professor_enroll_student(course_id):
     student_id_input = request.form.get("student_id", "").strip()
     if student_id_input:
-        add_enrollment(student_id_input, course_id)
+        # Verify student exists before attempting enrollment
+        student = get_db().execute("SELECT id FROM students WHERE student_id = ?", (student_id_input,)).fetchone()
+        if student:
+            if add_enrollment(student['id'], course_id):
+                flash("Student enrolled successfully!", "success")
+            else:
+                flash("Student is already enrolled in this course.", "error")
+        else:
+            flash("Student ID not found.", "error")
+    else:
+        flash("Student ID is required.", "error")
     return redirect(url_for("professor_course_detail", course_id=course_id))
 
 
 @app.route("/professor/enrollments/<int:enrollment_id>/remove", methods=["POST"])
 @professor_required
 def professor_remove_enrollment(enrollment_id):
-    remove_enrollment(enrollment_id)
+    # Verify enrollment exists before removal
+    enrollment = get_db().execute("SELECT id FROM enrollments WHERE id = ?", (enrollment_id,)).fetchone()
+    if enrollment:
+        remove_enrollment(enrollment_id)
+        flash("Student removed from course.", "success")
+    else:
+        flash("Enrollment record not found.", "error")
     return redirect(request.referrer or url_for("professor_dashboard"))
 
 
@@ -295,7 +364,15 @@ def professor_set_grade(enrollment_id):
     grade = request.form.get("grade", "").strip().upper()
     valid_grades = ["IP", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "F"]
     if grade in valid_grades:
-        set_grade(enrollment_id, grade)
+        # Verify enrollment exists before setting grade
+        enrollment = get_db().execute("SELECT id FROM enrollments WHERE id = ?", (enrollment_id,)).fetchone()
+        if enrollment:
+            set_grade(enrollment_id, grade)
+            flash("Grade updated successfully!", "success")
+        else:
+            flash("Enrollment record not found.", "error")
+    else:
+        flash("Invalid grade entered.", "error")
     return redirect(request.referrer or url_for("professor_dashboard"))
 
 

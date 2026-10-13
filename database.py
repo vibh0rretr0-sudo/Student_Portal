@@ -5,10 +5,13 @@ DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "database", "
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    from flask import g
+    if 'db' not in g:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON")
+        g.db = conn
+    return g.db
 
 
 def init_db():
@@ -95,7 +98,8 @@ def init_db():
 
     _seed_data(conn)
     conn.commit()
-    conn.close()
+    # conn.close() removed as handled by teardown_appcontext
+
 
 
 def _hash_password(password):
@@ -281,14 +285,12 @@ def _seed_data(conn):
 def get_user_by_username(username):
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
-    conn.close()
     return dict(row) if row else None
 
 
 def get_user_by_id(user_id):
     conn = get_db()
     row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
-    conn.close()
     return dict(row) if row else None
 
 
@@ -298,7 +300,6 @@ def get_student_by_user_id(user_id):
         "SELECT s.*, u.full_name, u.email FROM students s JOIN users u ON s.user_id = u.id WHERE s.user_id = ?",
         (user_id,)
     ).fetchone()
-    conn.close()
     return dict(row) if row else None
 
 
@@ -308,7 +309,6 @@ def get_professor_by_user_id(user_id):
         "SELECT p.*, u.full_name, u.email FROM professors p JOIN users u ON p.user_id = u.id WHERE p.user_id = ?",
         (user_id,)
     ).fetchone()
-    conn.close()
     return dict(row) if row else None
 
 
@@ -330,7 +330,6 @@ def get_student_enrollments(student_user_id):
         WHERE u.id = ?
         ORDER BY c.code
     """, (student_user_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -343,7 +342,6 @@ def get_course_by_id(course_id):
         LEFT JOIN users u ON p.user_id = u.id
         WHERE c.id = ?
     """, (course_id,)).fetchone()
-    conn.close()
     return dict(row) if row else None
 
 
@@ -357,7 +355,6 @@ def get_course_announcements(course_id):
         WHERE a.course_id = ?
         ORDER BY a.created_at DESC
     """, (course_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -366,14 +363,12 @@ def _get_professor_name_by_id(professor_id):
     row = conn.execute("""
         SELECT u.full_name FROM professors p JOIN users u ON p.user_id = u.id WHERE p.id = ?
     """, (professor_id,)).fetchone()
-    conn.close()
     return row['full_name'] if row else None
 
 
 def get_course_materials(course_id):
     conn = get_db()
     rows = conn.execute("SELECT * FROM course_materials WHERE course_id = ? ORDER BY uploaded_at DESC", (course_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -389,7 +384,6 @@ def get_professor_courses(professor_user_id):
         GROUP BY c.id
         ORDER BY c.code
     """, (professor_user_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -405,7 +399,6 @@ def get_course_enrollments(course_id):
         WHERE e.course_id = ?
         ORDER BY u.full_name
     """, (course_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -418,7 +411,6 @@ def get_all_students():
         JOIN users u ON s.user_id = u.id
         ORDER BY u.full_name
     """).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -431,7 +423,6 @@ def get_student_full(student_id):
         JOIN users u ON s.user_id = u.id
         WHERE s.student_id = ?
     """, (student_id,)).fetchone()
-    conn.close()
     if not row:
         return None
     result = dict(row)
@@ -452,7 +443,6 @@ def get_student_enrollments_by_student_id(student_db_id):
         WHERE e.student_id = ?
         ORDER BY c.code
     """, (student_db_id,)).fetchall()
-    conn.close()
     return [dict(r) for r in rows]
 
 
@@ -462,7 +452,6 @@ def create_course(code, name, description, credits, professor_user_id, semester,
     c.execute("SELECT id FROM professors WHERE user_id = ?", (professor_user_id,))
     prof = c.fetchone()
     if not prof:
-        conn.close()
         return None
     prof_id = prof['id']
     c.execute(
@@ -471,7 +460,6 @@ def create_course(code, name, description, credits, professor_user_id, semester,
     )
     course_id = c.lastrowid
     conn.commit()
-    conn.close()
     return course_id
 
 
@@ -482,14 +470,12 @@ def update_course(course_id, name, description, credits, semester, schedule, roo
         (name, description, credits, semester, schedule, room, course_id)
     )
     conn.commit()
-    conn.close()
 
 
 def delete_course(course_id):
     conn = get_db()
     conn.execute("DELETE FROM courses WHERE id = ?", (course_id,))
     conn.commit()
-    conn.close()
 
 
 def add_announcement(course_id, professor_user_id, title, content):
@@ -498,14 +484,12 @@ def add_announcement(course_id, professor_user_id, title, content):
     c.execute("SELECT id FROM professors WHERE user_id = ?", (professor_user_id,))
     prof = c.fetchone()
     if not prof:
-        conn.close()
         return False
     c.execute(
         "INSERT INTO announcements (course_id, professor_id, title, content) VALUES (?, ?, ?, ?)",
         (course_id, prof['id'], title, content)
     )
     conn.commit()
-    conn.close()
     return True
 
 
@@ -520,7 +504,6 @@ def add_enrollment(student_id, course_id, semester="Fall 2026"):
         success = True
     except sqlite3.IntegrityError:
         success = False
-    conn.close()
     return success
 
 
@@ -528,14 +511,12 @@ def remove_enrollment(enrollment_id):
     conn = get_db()
     conn.execute("DELETE FROM enrollments WHERE id = ?", (enrollment_id,))
     conn.commit()
-    conn.close()
 
 
 def set_grade(enrollment_id, grade):
     conn = get_db()
     conn.execute("UPDATE enrollments SET grade = ? WHERE id = ?", (grade, enrollment_id))
     conn.commit()
-    conn.close()
 
 
 def get_professor_dashboard_stats(professor_user_id):
@@ -546,7 +527,6 @@ def get_professor_dashboard_stats(professor_user_id):
             (SELECT COUNT(DISTINCT e.student_id) FROM enrollments e JOIN courses c ON e.course_id = c.id WHERE c.professor_id = (SELECT id FROM professors WHERE user_id = ?)) AS total_students,
             (SELECT COUNT(*) FROM announcements WHERE professor_id = (SELECT id FROM professors WHERE user_id = ?)) AS announcement_count
     """, (professor_user_id, professor_user_id, professor_user_id)).fetchone()
-    conn.close()
     return dict(stats)
 
 
@@ -570,5 +550,4 @@ def get_student_dashboard_stats(student_user_id):
     JOIN users u ON s.user_id = u.id
     WHERE u.id = ?
     """, (student_user_id, student_user_id)).fetchone()
-    conn.close()
     return dict(stats)

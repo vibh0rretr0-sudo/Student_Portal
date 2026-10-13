@@ -149,7 +149,7 @@
             <div class="content-card-body">
                 <div class="materials-list">
                     {% for m in materials %}
-                    <a class="material-item" href="{{ url_for('serve_material', filename=m.file_url.split('/')[-1]) if m.file_url and m.file_url != '/materials/cs301_lec10.pdf' and m.file_url != '/materials/cs301_a3.zip' else '#' }}">
+                    <a class="material-item" href="{{ url_for('serve_material', filename=m.file_url.split('/')[-1]) if m.file_url else '#' }}">
                         <div class="material-icon {{ m.type }}">
                             {% if m.type == 'pdf' %}
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
