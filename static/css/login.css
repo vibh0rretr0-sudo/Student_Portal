@@ -1,0 +1,107 @@
+/* Login page overrides and additions */
+
+.login-page {
+    align-items: center;
+}
+
+.login-card {
+    padding: 40px;
+}
+
+.login-header {
+    margin-bottom: 32px;
+}
+
+.login-logo {
+    margin-bottom: 16px;
+}
+
+.login-form .form-group:last-of-type {
+    margin-top: 4px;
+}
+
+.login-form .btn {
+    margin-top: 8px;
+    padding: 12px;
+    font-size: 15px;
+}
+
+.login-demo-credentials {
+    margin-top: 20px;
+}
+
+.login-demo-title {
+    margin-bottom: 10px;
+}
+
+.login-demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.login-demo-item {
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.login-demo-item .role-badge {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.login-footer a {
+    color: var(--indigo-500);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Loading spinner */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Shake animation for error */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+.shake {
+    animation: shake 0.4s ease;
+}
+
+/* Focus ring for accessibility */
+.form-input:focus-visible {
+    outline: 2px solid var(--indigo-400);
+    outline-offset: 1px;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--amber-400);
+    outline-offset: 2px;
+}
