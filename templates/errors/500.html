@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div class="error-page" style="display: grid; place-items: center; text-align: center; min-height: 60vh;">
+    <div class="glass-card" style="padding: 48px; max-width: 600px;">
+        <h1 class="text-gradient" style="font-size: 6rem; margin: 0;">500</h1>
+        <h2 style="font-size: 2rem; margin: 16px 0;">Something went wrong</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px; font-size: 1.1rem;">
+            Our servers are having a momentary lapse in judgment. We've been notified and are looking into it.
+        </p>
+        <a href="{{ url_for('professor.dashboard' if session.role == 'professor' else 'student.dashboard') }}" class="btn btn-primary">
+            Try Again
+        </a>
+    </div>
+</div>
+{% endblock %}

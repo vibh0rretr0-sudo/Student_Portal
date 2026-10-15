@@ -3,86 +3,78 @@
 {% block title %}My Profile — Student Portal{% endblock %}
 
 {% block breadcrumb %}
-<a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+<a href="{{ url_for('student.dashboard') }}">Dashboard</a>
 <span class="separator">/</span>
 <span class="current">My Profile</span>
 {% endblock %}
 
 {% block content %}
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
-    <div>
-        <h1 class="page-title">My Profile</h1>
-        <p class="page-subtitle">View and manage your personal information.</p>
-    </div>
+<div class="page-header">
+    <h1 class="page-title text-gradient">My Profile</h1>
+    <p class="page-subtitle">View and manage your personal information.</p>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="detail-layout">
     <!-- Personal Info -->
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-avatar">{{ session.full_name[0:2]|upper }}</div>
-            <div class="profile-info">
-                <div class="profile-name">{{ session.full_name }}</div>
-                <div class="profile-meta">
-                    <span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                            <circle cx="9" cy="7" r="4"/>
-                        </svg>
-                        {{ session.role | capitalize }}
-                    </span>
-                    <span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                            <circle cx="12" cy="10" r="3"/>
-                        </svg>
-                        {{ session.username }}
-                    </span>
-                </div>
+    <div class="glass-card content-card" style="flex: 0 0 350px;">
+        <div class="content-card-header" style="text-align: center; padding: 32px 24px 24px;">
+            <div class="profile-avatar" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--indigo-600), var(--amber-500)); color: white; border-radius: 50%; display: grid; place-items: center; font-size: 2rem; font-weight: 800; margin: 0 auto 16px; box-shadow: 0 8px 20px rgba(59, 77, 138, 0.3);">
+                {{ session.full_name[0:2]|upper }}
+            </div>
+            <div class="profile-name" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">{{ session.full_name }}</div>
+            <div class="profile-meta" style="display: flex; justify-content: center; gap: 12px; font-size: 13px; color: var(--text-muted);">
+                <span style="display: flex; align-items: center; gap: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                    </svg>
+                    {{ session.role | capitalize }}
+                </span>
+                <span style="display: flex; align-items: center; gap: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {{ session.username }}
+                </span>
             </div>
         </div>
-        <div class="profile-body">
-            <div class="profile-field">
-                <span class="profile-field-label">Full Name</span>
-                <span class="profile-field-value">{{ session.full_name }}</span>
+        <div class="content-card-body" style="padding: 0 24px 24px; display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-muted);">Student ID</span>
+                <span style="font-weight: 600; font-family: var(--font-mono);">{{ student.student_id }}</span>
             </div>
-            <div class="profile-field">
-                <span class="profile-field-label">Student ID</span>
-                <span class="profile-field-value" style="font-family: var(--font-mono);">{{ student.student_id }}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-muted);">Email</span>
+                <span style="font-weight: 600; color: var(--indigo-600);">{{ student.email or '—' }}</span>
             </div>
-            <div class="profile-field">
-                <span class="profile-field-label">Email</span>
-                <span class="profile-field-value" style="color: var(--indigo-500);">{{ student.email or '—' }}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-muted);">Major</span>
+                <span style="font-weight: 600;">{{ student.major or '—' }}</span>
             </div>
-            <div class="profile-field">
-                <span class="profile-field-label">Major</span>
-                <span class="profile-field-value">{{ student.major or '—' }}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--text-muted);">Current Semester</span>
+                <span style="font-weight: 600;">Semester {{ student.current_semester }}</span>
             </div>
-            <div class="profile-field">
-                <span class="profile-field-label">Current Semester</span>
-                <span class="profile-field-value">Semester {{ student.current_semester }}</span>
-            </div>
-            <div class="profile-field">
-                <span class="profile-field-label">Enrollment Date</span>
-                <span class="profile-field-value">{{ formatDate(student.enrollment_date) if student.enrollment_date else '—' }}</span>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0;">
+                <span style="color: var(--text-muted);">Enrollment Date</span>
+                <span style="font-weight: 600;">{{ formatDate(student.enrollment_date) if student.enrollment_date else '—' }}</span>
             </div>
         </div>
     </div>
 
     <!-- Enrollment History -->
-    <div class="profile-card">
-        <div style="padding: 20px 28px; border-bottom: 1px solid var(--border); background: var(--surface-sunken);">
-            <div style="font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                </svg>
-                Enrollment History
-            </div>
+    <div class="glass-card content-card" style="flex: 1;">
+        <div class="content-card-header" style="padding: 20px 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.25rem; color: var(--text-primary);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+            Enrollment History
         </div>
-        <div style="padding: 8px 0;">
+        <div class="content-card-body" style="padding: 0 24px 24px 24px;">
             {% if full.enrollments %}
-            <div style="overflow-x: auto;">
+            <div class="table-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -101,16 +93,12 @@
                                 <div style="font-weight: 600; color: var(--text-primary);">{{ e.code }}</div>
                                 <div style="font-size: 12px; color: var(--text-muted);">{{ e.name[:40] }}{% if e.name|length > 40 %}...{% endif %}</div>
                             </td>
-                            <td>
-                                <span style="color: var(--text-secondary); font-size: 13px;">{{ e.professor_name }}</span>
-                            </td>
+                            <td style="color: var(--text-secondary); font-size: 13px;">{{ e.professor_name }}</td>
                             <td style="color: var(--text-muted); font-size: 13px;">{{ e.schedule or 'TBA' }}</td>
-                            <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary);">
-                                {{ e.credits }}
-                            </td>
+                            <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary);">{{ e.credits }}</td>
                             <td>
                                 {% if e.grade %}
-                                <span class="grade-badge {{ e.grade }}">{{ e.grade }}</span>
+                                <span class="grade-badge {{ e.grade }}" style="font-size: 12px; padding: 4px 8px; border-radius: var(--radius-sm); background: var(--indigo-100); color: var(--indigo-600); font-weight: 600;">{{ e.grade }}</span>
                                 {% else %}
                                 <span style="color: var(--text-muted); font-size: 13px;">—</span>
                                 {% endif %}
@@ -133,9 +121,9 @@
                 </table>
             </div>
             {% else %}
-            <div class="empty-state" style="padding: 32px 16px;">
-                <div class="empty-state-title">No enrollments yet</div>
-                <div class="empty-state-desc">You haven't enrolled in any courses yet.</div>
+            <div class="empty-state" style="text-align: center; padding: 48px 0;">
+                <div class="empty-state-title" style="font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">No enrollments yet</div>
+                <div class="empty-state-desc" style="color: var(--text-muted); font-size: 14px;">You haven't enrolled in any courses yet.</div>
             </div>
             {% endif %}
         </div>

@@ -3,162 +3,168 @@
 {% block title %}{{ 'Create Course' if mode == 'create' else 'Edit Course' }} — Student Portal{% endblock %}
 
 {% block breadcrumb %}
-<a href="{{ url_for('professor_dashboard') }}">Dashboard</a>
+<a href="{{ url_for('professor.dashboard') }}">Dashboard</a>
 <span class="separator">/</span>
-<a href="{{ url_for('professor_courses') }}">My Courses</a>
+<a href="{{ url_for('professor.courses') }}">My Courses</a>
 <span class="separator">/</span>
 <span class="current">{{ 'Create Course' if mode == 'create' else 'Edit Course' }}</span>
 {% endblock %}
 
 {% block content %}
-<div class="form-card">
-    <div class="form-card-header">
-        <div class="form-card-title">
-            {% if mode == 'create' %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber-500); margin-right: 8px;">
-                <path d="M5 12h14"/>
-                <path d="M12 5v14"/>
-            </svg>
-            Create New Course
-            {% else %}
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500); margin-right: 8px;">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-                <path d="m15 5 4 4"/>
-            </svg>
-            Edit Course
-            {% endif %}
-        </div>
-        <a class="btn btn-secondary btn-sm" href="{{ url_for('professor_courses') }}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"/>
-                <path d="m12 5 7 7-7 7"/>
-            </svg>
-            Back to Courses
-        </a>
-    </div>
-
-    <div class="form-card-body">
-        {% if error %}
-        <div class="login-error-banner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="12" x2="12" y1="8" y2="12"/>
-                <line x1="12" x2="12.01" y1="16" y2="16"/>
-            </svg>
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <form method="POST" action="{% if mode == 'create' %}{{ url_for('professor_create_course') }}{% else %}{{ url_for('professor_edit_course', course_id=course.id) }}{% endif %}">
-            <!-- Basic Info -->
-            <div class="form-card-section">
-                <div class="form-section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <path d="M12 2a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"/>
-                        <path d="M2 12h20"/>
-                    </svg>
-                    Basic Information
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="code">Course Code <span style="color: var(--error);">*</span></label>
-                        <input type="text" class="form-input" id="code" name="code"
-                               value="{{ course.code if course else '' }}" placeholder="e.g., CS301"
-                               maxlength="20" required
-                               {% if mode == 'edit' %}disabled{% endif %}>
-                        <span class="form-hint">Unique course identifier (auto-generated, cannot be changed)</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="credits">Credits <span style="color: var(--error);">*</span></label>
-                        <select class="form-select" id="credits" name="credits" required>
-                            <option value="1" {% if course and course.credits == 1 %}selected{% endif %}>1 Credit</option>
-                            <option value="2" {% if course and course.credits == 2 %}selected{% endif %}>2 Credits</option>
-                            <option value="3" {% if not course or course.credits == 3 %}selected{% endif %}>3 Credits</option>
-                            <option value="4" {% if course and course.credits == 4 %}selected{% endif %}>4 Credits</option>
-                            <option value="5" {% if course and course.credits == 5 %}selected{% endif %}>5 Credits</option>
-                            <option value="6" {% if course and course.credits == 6 %}selected{% endif %}>6 Credits</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" for="name">Course Name <span style="color: var(--error);">*</span></label>
-                        <input type="text" class="form-input" id="name" name="name"
-                               value="{{ course.name if course else '' }}" placeholder="e.g., Data Structures & Algorithms"
-                               maxlength="120" required>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label class="form-label" for="description">Description</label>
-                        <textarea class="form-textarea" id="description" name="description"
-                                  placeholder="Brief description of the course content, learning objectives, and topics covered..."
-                                  rows="3">{{ course.description if course else '' }}</textarea>
-                    </div>
-                </div>
+<div class="detail-layout" style="justify-content: center;">
+    <div class="glass-card form-card" style="max-width: 800px; width: 100%; padding: 0;">
+        <div class="form-card-header" style="padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <div class="form-card-title" style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.5rem; color: var(--text-primary);">
+                {% if mode == 'create' %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--amber-500);">
+                    <path d="M5 12h14"/>
+                    <path d="M12 5v14"/>
+                </svg>
+                Create New Course
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                    <path d="m15 5 4 4"/>
+                </svg>
+                Edit Course
+                {% endif %}
             </div>
+            <a class="btn btn-secondary btn-sm" href="{{ url_for('professor.courses') }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                </svg>
+                Back to Courses
+            </a>
+        </div>
 
-            <!-- Schedule Details -->
-            <div class="form-card-section">
-                <div class="form-section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                        <line x1="16" x2="16" y1="2" y2="6"/>
-                        <line x1="8" x2="8" y1="2" y2="6"/>
-                        <line x1="3" x2="21" y1="10" y2="10"/>
-                    </svg>
-                    Schedule & Location
-                </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label" for="semester">Semester</label>
-                        <select class="form-select" id="semester" name="semester">
-                            <option value="Fall 2026" {% if not course or course.semester == 'Fall 2026' %}selected{% endif %}>Fall 2026</option>
-                            <option value="Spring 2027" {% if course and course.semester == 'Spring 2027' %}selected{% endif %}>Spring 2027</option>
-                            <option value="Summer 2027" {% if course and course.semester == 'Summer 2027' %}selected{% endif %}>Summer 2027</option>
-                            <option value="Fall 2027" {% if course and course.semester == 'Fall 2027' %}selected{% endif %}>Fall 2027</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="schedule">Schedule</label>
-                        <input type="text" class="form-input" id="schedule" name="schedule"
-                               value="{{ course.schedule if course else '' }}" placeholder="e.g., MWF 10:00-11:30"
-                               maxlength="60">
-                        <span class="form-hint">Day/time pattern for lectures</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="room">Room</label>
-                        <input type="text" class="form-input" id="room" name="room"
-                               value="{{ course.room if course else '' }}" placeholder="e.g., Engineering Block A, Room 204"
-                               maxlength="80">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Professor Info (read-only) -->
-            {% if mode == 'edit' %}
-            <div class="form-card-section" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
-                <div class="form-section-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                    Assigned Professor
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface-sunken); border-radius: var(--radius-md); margin-top: 4px;">
-                    <div class="student-list-avatar" style="background: var(--indigo-100); color: var(--indigo-600); width: 32px; height: 32px; font-size: 12px;">{{ 'PR' }}</div>
-                    <div>
-                        <div style="font-weight: 600; font-size: 13px; color: var(--text-primary);">{{ course.professor_name or '—' }}</div>
-                        <div style="font-size: 11px; color: var(--text-muted);">{{ course.professor_id or '' }}</div>
-                    </div>
-                </div>
+        <div class="form-card-body" style="padding: 32px;">
+            {% if error %}
+            <div class="login-error-banner" style="margin-bottom: 24px; padding: 12px 16px; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--error); border-radius: var(--radius-md); color: var(--error); display: flex; align-items: center; gap: 8px; font-size: 14px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" x2="12" y1="8" y2="12"/>
+                    <line x1="12" x2="12.01" y1="16" y2="16"/>
+                </svg>
+                {{ error }}
             </div>
             {% endif %}
-        </div>
 
-        <div class="form-card-footer">
-            <div class="form-actions">
-                <a class="btn btn-secondary" href="{{ url_for('professor_courses') }}">Cancel</a>
-                <button type="submit" class="btn btn-amber">
+            <form method="POST" action="{% if mode == 'create' %}{{ url_for('professor.create_course') }}{% else %}{{ url_for('professor.edit_course', course_id=course.id) }}{% endif %}" id="course-form">
+                <!-- Basic Info -->
+                <div class="form-card-section" style="margin-bottom: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border);">
+                    <div class="form-section-title" style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 2a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"/>
+                            <path d="M2 12h20"/>
+                        </svg>
+                        Basic Information
+                    </div>
+                    <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label" for="code" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Course Code <span style="color: var(--error);">*</span></label>
+                            <input type="text" class="form-input" id="code" name="code"
+                                   value="{{ course.code if course else '' }}" placeholder="e.g., CS301"
+                                   maxlength="20" required
+                                   style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary); font-family: var(--font-mono);"
+                                   {% if mode == 'edit' %}disabled{% endif %}>
+                            <span class="form-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Unique course identifier (cannot be changed after creation)</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="credits" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Credits <span style="color: var(--error);">*</span></label>
+                            <select class="form-select" id="credits" name="credits" required
+                                    style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">
+                                <option value="1" {% if course and course.credits == 1 %}selected{% endif %}>1 Credit</option>
+                                <option value="2" {% if course and course.credits == 2 %}selected{% endif %}>2 Credits</option>
+                                <option value="3" {% if not course or course.credits == 3 %}selected{% endif %}>3 Credits</option>
+                                <option value="4" {% if course and course.credits == 4 %}selected{% endif %}>4 Credits</option>
+                                <option value="5" {% if course and course.credits == 5 %}selected{% endif %}>5 Credits</option>
+                                <option value="6" {% if course and course.credits == 6 %}selected{% endif %}>6 Credits</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label" for="name" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Course Name <span style="color: var(--error);">*</span></label>
+                            <input type="text" class="form-input" id="name" name="name"
+                                   value="{{ course.name if course else '' }}" placeholder="e.g., Data Structures & Algorithms"
+                                   maxlength="120" required
+                                   style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label" for="description" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Description</label>
+                            <textarea class="form-textarea" id="description" name="description"
+                                      placeholder="Brief description of the course content, learning objectives, and topics covered..."
+                                      rows="3" style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">{{ course.description if course else '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Schedule Details -->
+                <div class="form-card-section" style="margin-bottom: 32px;">
+                    <div class="form-section-title" style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                            <line x1="16" x2="16" y1="2" y2="6"/>
+                            <line x1="8" x2="8" y1="2" y2="6"/>
+                            <line x1="3" x2="21" y1="10" y2="10"/>
+                        </svg>
+                        Schedule & Location
+                    </div>
+                    <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label" for="semester" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Semester</label>
+                            <select class="form-select" id="semester" name="semester"
+                                    style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">
+                                <option value="Fall 2026" {% if not course or course.semester == 'Fall 2026' %}selected{% endif %}>Fall 2026</option>
+                                <option value="Spring 2027" {% if course and course.semester == 'Spring 2027' %}selected{% endif %}>Spring 2027</option>
+                                <option value="Summer 2027" {% if course and course.semester == 'Summer 2027' %}selected{% endif %}>Summer 2027</option>
+                                <option value="Fall 2027" {% if course and course.semester == 'Fall 2027' %}selected{% endif %}>Fall 2027</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="schedule" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Schedule</label>
+                            <input type="text" class="form-input" id="schedule" name="schedule"
+                                   value="{{ course.schedule if course else '' }}" placeholder="e.g., MWF 10:00-11:30"
+                                   maxlength="60"
+                                   style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">
+                            <span class="form-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">Day/time pattern for lectures</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="room" style="display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Room</label>
+                            <input type="text" class="form-input" id="room" name="room"
+                                   value="{{ course.room if course else '' }}" placeholder="e.g., Engineering Block A, Room 204"
+                                   maxlength="80"
+                                   style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-sunken); color: var(--text-primary);">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professor Info (read-only) -->
+                {% if mode == 'edit' %}
+                <div class="form-card-section" style="margin-bottom: 32px;">
+                    <div class="form-section-title" style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.1rem; color: var(--text-primary); margin-bottom: 20px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        Assigned Professor
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: var(--surface-sunken); border-radius: var(--radius-md); border: 1px solid var(--border); color: var(--text-primary);">
+                        <div class="student-list-avatar" style="background: var(--indigo-100); color: var(--indigo-600); width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; font-size: 12px;">PR</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 13px;">{{ course.professor_name or '—' }}</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">{{ course.professor_id or '' }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+
+            <div class="form-card-footer" style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+                <a class="btn btn-secondary" href="{{ url_for('professor.courses') }}">Cancel</a>
+                <button type="submit" form="course-form" class="btn btn-amber">
                     {% if mode == 'create' %}
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14"/>

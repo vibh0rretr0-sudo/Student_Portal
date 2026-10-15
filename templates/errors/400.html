@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}400 - Bad Request{% endblock %}
+
+{% block content %}
+<div class="error-page" style="display: grid; place-items: center; text-align: center; min-height: 60vh;">
+    <div class="glass-card" style="padding: 48px; max-width: 600px;">
+        <h1 class="text-gradient" style="font-size: 6rem; margin: 0;">400</h1>
+        <h2 style="font-size: 2rem; margin: 16px 0;">Bad Request</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 32px; font-size: 1.1rem;">
+            The server couldn't understand the request. Please check your input and try again.
+        </p>
+        <a href="{{ url_for('professor.dashboard' if session.role == 'professor' else 'student.dashboard') }}" class="btn btn-primary">
+            Return Home
+        </a>
+    </div>
+</div>
+{% endblock %}

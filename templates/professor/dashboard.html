@@ -3,105 +3,94 @@
 {% block title %}Dashboard — Student Portal{% endblock %}
 
 {% block breadcrumb %}
-<a href="{{ url_for('professor_dashboard') }}">Dashboard</a>
+<a href="{{ url_for('professor.dashboard') }}">Dashboard</a>
 {% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="page-title">Good {{ 'morning' if now.hour < 12 else 'afternoon' if now.hour < 17 else 'evening' }}, Dr. {{ session.full_name.split(' ')[-1] }}</h1>
-    <p class="page-subtitle">Manage your {{ stats.course_count }} course{{ 's' if stats.course_count != 1 else '' }} and {{ stats.total_students }} student{{ 's' if stats.total_students != 1 else '' }}.</p>
+    <h1 class="page-title text-gradient">Good {{ 'morning' if now.hour < 12 else 'afternoon' if now.hour < 17 else 'evening' }}, Dr. {{ session.full_name.split(' ')[-1] }}</h1>
+    <p class="page-subtitle">Manage your {{ stats.course_count or 0 }} course{{ 's' if stats.course_count != 1 else '' }} and {{ stats.total_students or 0 }} student{{ 's' if stats.total_students != 1 else '' }}.</p>
 </div>
 
-<!-- Stats -->
+<!-- Stats Grid -->
 <div class="dashboard-grid">
-    <div class="stat-card">
+    <div class="glass-card stat-card">
         <div class="stat-card-header">
             <div class="stat-card-icon indigo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
             </div>
             <span class="stat-card-label">Active Courses</span>
         </div>
-        <div class="stat-card-value">{{ stats.course_count }}</div>
+        <div class="stat-value">{{ stats.course_count or 0 }}</div>
         <div class="stat-card-change">This semester</div>
     </div>
 
-    <div class="stat-card">
+    <div class="glass-card stat-card">
         <div class="stat-card-header">
             <div class="stat-card-icon amber">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
             </div>
             <span class="stat-card-label">Total Students</span>
         </div>
-        <div class="stat-card-value">{{ stats.total_students }}</div>
+        <div class="stat-value">{{ stats.total_students or 0 }}</div>
         <div class="stat-card-change">Across all courses</div>
     </div>
 
-    <div class="stat-card">
+    <div class="glass-card stat-card">
         <div class="stat-card-header">
             <div class="stat-card-icon green">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                    <path d="M10.3 23a1.94 1.94 0 0 0 3.4 0"/>
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 23a1.94 1.94 0 0 0 3.4 0"/>
                 </svg>
             </div>
             <span class="stat-card-label">Announcements</span>
         </div>
-        <div class="stat-card-value">{{ stats.announcement_count }}</div>
+        <div class="stat-value">{{ stats.announcement_count or 0 }}</div>
         <div class="stat-card-change">Posted this term</div>
     </div>
 
-    <div class="stat-card">
+    <div class="glass-card stat-card">
         <div class="stat-card-header">
             <div class="stat-card-icon blue">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
             </div>
             <span class="stat-card-label">Department</span>
         </div>
-        <div class="stat-card-value" style="font-size: 20px;">{{ professor.department or '—' }}</div>
+        <div class="stat-value" style="font-size: 1.25rem;">{{ professor.department or '—' }}</div>
         <div class="stat-card-change">{{ professor.title or 'Faculty' }}</div>
     </div>
 </div>
 
-<!-- Quick actions -->
+<!-- Quick Actions -->
 <div class="quick-action-grid">
-    <a class="quick-action" href="{{ url_for('professor_create_course') }}">
+    <a class="quick-action glass-card" href="{{ url_for('professor.create_course') }}">
         <div class="quick-action-icon amber">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"/>
-                <path d="M12 5v14"/>
+                <path d="M5 12h14"/><path d="M12 5v14"/>
             </svg>
         </div>
         <span class="quick-action-label">Create Course</span>
         <span class="quick-action-desc">Add a new course</span>
     </a>
-    <a class="quick-action" href="{{ url_for('professor_courses') }}">
+    <a class="quick-action glass-card" href="{{ url_for('professor.courses') }}">
         <div class="quick-action-icon indigo">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
         </div>
         <span class="quick-action-label">My Courses</span>
         <span class="quick-action-desc">View and manage courses</span>
     </a>
-    <a class="quick-action" href="{{ url_for('professor_students') }}">
+    <a class="quick-action glass-card" href="{{ url_for('professor.students') }}">
         <div class="quick-action-icon green">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
         </div>
         <span class="quick-action-label">All Students</span>
@@ -109,26 +98,24 @@
     </a>
 </div>
 
-<!-- Courses overview -->
-<div class="content-card">
+<!-- Courses Overview -->
+<div class="glass-card content-card">
     <div class="content-card-header">
         <div class="content-card-title">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
             Your Courses
-            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 4px;">{{ stats.course_count }} course{{ 's' if stats.course_count != 1 else '' }}</span>
+            <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); margin-left: 4px;">{{ stats.course_count or 0 }} course{{ 's' if stats.course_count != 1 else '' }}</span>
         </div>
-        <a class="btn btn-secondary btn-sm" href="{{ url_for('professor_courses') }}">
+        <a class="btn btn-secondary btn-sm" href="{{ url_for('professor.courses') }}">
             Manage all
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M5 12h14"/>
-                <path d="m12 5 7 7-7 7"/>
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
             </svg>
         </a>
     </div>
-    <div class="content-card-body" style="padding: 8px 16px;">
+    <div class="content-card-body">
         {% if courses %}
         <div class="table-wrapper">
             <table class="data-table">
@@ -163,11 +150,10 @@
                         </td>
                         <td style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">{{ course.semester }}</td>
                         <td>
-                            <a class="btn btn-secondary btn-xs" href="{{ url_for('professor_course_detail', course_id=course.id) }}">
+                            <a class="btn btn-secondary btn-xs" href="{{ url_for('professor.course_detail', course_id=course.id) }}">
                                 Open
                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M5 12h14"/>
-                                    <path d="m12 5 7 7-7 7"/>
+                                    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
                                 </svg>
                             </a>
                         </td>
@@ -177,19 +163,17 @@
             </table>
         </div>
         {% else %}
-        <div class="empty-state" style="padding: 40px 16px;">
+        <div class="empty-state">
             <div class="empty-state-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
             </div>
             <div class="empty-state-title">No courses assigned</div>
             <div class="empty-state-desc">You don't have any courses for this semester yet. Create one to get started.</div>
-            <a class="btn btn-amber btn-sm" href="{{ url_for('professor_create_course') }}" style="margin-top: 12px;">
+            <a class="btn btn-amber btn-sm" href="{{ url_for('professor.create_course') }}" style="margin-top: 12px;">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14"/>
-                    <path d="M12 5v14"/>
+                    <path d="M5 12h14"/><path d="M12 5v14"/>
                 </svg>
                 Create your first course
             </a>
