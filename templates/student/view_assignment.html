@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Assignment — {{ course.code }} — Student Portal{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('student.dashboard') }}">Dashboard</a>
+<span class="separator">/</span>
+<a href="{{ url_for('student.courses') }}">My Courses</a>
+<span class="separator">/</span>
+<a href="{{ url_for('student.course_detail', course_id=course.id) }}">{{ course.code }}</span>
+<span class="separator">/</span>
+<span class="current">Assignment</span>
+{% endblock %}
+
+{% block content %}
+<div class="detail-layout">
+    <div class="detail-main">
+        <!-- Course Header -->
+        <div class="glass-card course-detail-header" style="padding: 32px; margin-bottom: 24px;">
+            <span class="course-detail-code" style="background: var(--indigo-50); color: var(--indigo-600); padding: 4px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-weight: 600; font-size: 14px;">{{ course.code }}</span>
+            <h1 class="course-detail-name text-gradient" style="font-size: 2.5rem; margin: 12px 0; letter-spacing: -0.02em;">{{ course.name }}</h1>
+            <div class="course-detail-professor" style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-weight: 500; margin-bottom: 16px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                {{ course.professor_name }}
+                <span style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 4px;">({{ course.professor_id }})</span>
+            </div>
+            <p class="course-detail-desc" style="color: var(--text-secondary); font-size: 16px; line-height: 1.6; max-width: 800px; margin-bottom: 24px;">{{ course.description }}</p>
+        </div>
+
+        <!-- Assignment Header -->
+        <div class="glass-card content-card" style="margin-bottom: 24px;">
+            <div class="content-card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px 24px;">
+                <div class="content-card-title" style="display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.25rem; color: var(--text-primary);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    Assignment Details
+                </div>
+                {% if submission_status %}
+                <span class="status-badge" style="background: var(--success); color: white; font-size: 11px; padding: 2px 8px; border-radius: var(--radius-xs);">SUBMITTED</span>
+                {% else %}
+                <a class="btn btn-amber btn-sm" href="{{ url_for('student.submit_assignment', course_id=course.id, assignment_id=assignment.id) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/><path d="M12 5v14"/>
+                    </svg>
+                    Submit Assignment
+                </a>
+                {% endif %}
+            </div>
+            <div class="content-card-body" style="padding: 0 24px 24px 24px;">
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                    <div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Max Points</div>
+                        <div style="font-weight: 600; font-size: 16px;">{{ assignment.max_points }} pts</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 13px; color: var(--text-muted);">Due Date</div>
+                        <div style="font-weight: 600; font-size: 16px;">
+                            {{ assignment.due_date.strftime('%b %d, %Y %H:%M') if assignment.due_date else 'No due date' }}
+                            {% if assignment.due_date and assignment.due_date < now() %}
+                            <span style="color: var(--error); font-size: 11px; margin-left: 4px;">(Overdue)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="assignment-content" style="margin-bottom: 24px;">
+                    <div class="assignment-title" style="font-weight: 600; font-size: 1.5rem; color: var(--text-primary); margin-bottom: 16px;">
+                        {{ assignment.title }}
+                    </div>
+                    {% if assignment.description %}
+                    <div class="assignment-description" style="color: var(--text-secondary); line-height: 1.6; font-size: 15px; margin-bottom: 24px;">
+                        {{ assignment.description }}
+                    </div>
+                    {% endif %}
+
+                    {% if assignment.file_url %}
+                    <div class="assignment-attachment" style="display: flex; align-items: center; gap: 12px; padding: 16px; background: rgba(255,255,255,0.3); border-radius: var(--radius-md); border: 1px solid var(--glass-border); margin-bottom: 24px;">
+                        <div>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                                <path d="M21 15v2a2 2 0 0 1-2 2H5l-2 2V9a2 2 0 0 1 2-2h7.5L21 15z"/>
+                            </svg>
+                            <span>Download Assignment File</span>
+                        </div>
+                        <a href="{{ url_for('serve_material', filename=assignment.file_url) }}" class="btn btn-sm btn-outline">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v2a2 2 0 0 1-2 2H5l-2 2V9a2 2 0 0 1 2-2h5.5L4 12l1.5 1.5L20 7.5"/>
+                            </svg>
+                            Download
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if submission_status %}
+                <div class="glass-card content-card">
+                    <div class="content-card-header" style="padding: 20px 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.25rem; color: var(--text-primary);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 12l2 2 4-4"/>
+                        </svg>
+                        Your Submission
+                    </div>
+                    <div class="content-card-body" style="padding: 0 24px 24px 24px;">
+                        <p style="color: var(--text-secondary);">You have submitted this assignment. View your submission details:</p>
+                        <a href="{{ url_for('student.view_submission', course_id=course.id, assignment_id=assignment.id, submission_id=submission.id) }}" class="btn btn-amber btn-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"/><path d="M12 5v14"/>
+                            </svg>
+                            View Submission
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="detail-sidebar">
+        <div class="glass-card content-card">
+            <div class="content-card-header" style="padding: 20px 24px; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.25rem; color: var(--text-primary);">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--indigo-500);">
+                    <rect width="7" height="9" x="3" y="3" rx="1"/>
+                    <rect width="7" height="5" x="14" y="3" rx="1"/>
+                    <rect width="7" height="9" x="14" y="12" rx="1"/>
+                    <rect width="7" height="5" x="3" y="16" rx="1"/>
+                </svg>
+                Course Info
+            </div>
+            <div class="content-card-body" style="padding: 0 24px 24px 24px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Code</span>
+                    <span style="font-weight: 600; font-family: var(--font-mono); color: var(--indigo-600);">{{ course.code }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Credits</span>
+                    <span style="font-weight: 600;">{{ course.credits }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Semester</span>
+                    <span style="font-weight: 600;">{{ course.semester }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Professor</span>
+                    <span style="font-weight: 600;">{{ course.professor_name or '—' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Schedule</span>
+                    <span style="font-weight: 500;">{{ course.schedule or 'TBA' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Room</span>
+                    <span style="font-weight: 500;">{{ course.room or 'TBA' }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--text-muted);">Total Students</span>
+                    <span style="font-weight: 600; color: var(--success);">{{ course.enrollment_count if course.enrollment_count is defined else 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

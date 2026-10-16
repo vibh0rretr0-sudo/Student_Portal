@@ -20,6 +20,16 @@
     margin-top: 4px;
 }
 
+/* Form validation styles */
+.form-control.is-invalid {
+    border-color: var(--error);
+}
+
+.form-control.is-invalid:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+}
+
 .login-form .btn {
     margin-top: 8px;
     padding: 12px;
@@ -96,8 +106,13 @@
 }
 
 /* Focus ring for accessibility */
-.form-input:focus-visible {
+.form-control:focus-visible {
     outline: 2px solid var(--indigo-400);
+    outline-offset: 1px;
+}
+
+.form-control.is-invalid:focus-visible {
+    outline: 2px solid var(--error);
     outline-offset: 1px;
 }
 
